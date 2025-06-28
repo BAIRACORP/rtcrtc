@@ -33,13 +33,18 @@ io.on('connection', (socket) => {
 
   socket.on('call-user', ({ targetUserId, callerInfo, offer }) => {
     console.log('\n📞 Incoming call request');
-    
+
+    // Validate callerInfo
     if (!callerInfo || !callerInfo.id || !callerInfo.username) {
       console.warn('⚠️ Invalid callerInfo:', callerInfo);
-      socket.emit('call-failed', { error: 'Invalid caller information.' });
+      socket.emit('call-failed', {
+        error: 'Invalid caller information.',
+        targetUserId: targetUserId || 'unknown',
+      });
       return;
     }
 
+    // Validate target user
     const targetUser = users.get(targetUserId);
     if (!targetUser) {
       console.warn(`❌ Target user ${targetUserId} not found`);
@@ -50,6 +55,7 @@ io.on('connection', (socket) => {
       return;
     }
 
+    // All good — send the incoming call
     console.log(`🔹 Caller: ${callerInfo.username} (${callerInfo.id})`);
     console.log(`🔸 Target: ${targetUser.username} (${targetUser.userId})`);
 
